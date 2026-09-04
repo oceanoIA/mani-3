@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>STARK KINETIC LAB v10.0 // LIQUID GLASS EDITION</title>
+  <title>STARK KINETIC LAB v9.0 // MINIMAL FUTURISTIC</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -11,97 +11,83 @@
 
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; }
-    body { overflow: hidden; background-color: #030508; font-family: 'Share Tech Mono', monospace; color: #00f3ff; }
+    body { overflow: hidden; background-color: #000000; font-family: 'Share Tech Mono', monospace; color: #00f3ff; }
     #canvas-container { width: 100vw; height: 100vh; position: absolute; top: 0; left: 0; z-index: 1; }
     #video-input { display: none; }
 
-    /* LIQUID GLASS HEADER */
     .stark-header {
-      position: absolute; top: 0; left: 0; width: 100%; height: 55px;
-      background: rgba(10, 15, 25, 0.45); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-      border-bottom: 1px solid rgba(0, 243, 255, 0.15); z-index: 10;
+      position: absolute; top: 0; left: 0; width: 100%; height: 50px;
+      background: rgba(0, 0, 0, 0.85); border-bottom: 1px solid rgba(0, 243, 255, 0.2); z-index: 10;
       display: flex; align-items: center; justify-content: space-between; padding: 0 24px;
-      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
     }
     .stark-title {
       font-family: 'Orbitron', sans-serif; font-weight: 900; font-size: 13px;
-      letter-spacing: 2px; color: #ffffff; text-shadow: 0 0 12px rgba(0, 243, 255, 0.6);
+      letter-spacing: 2px; color: #ffffff; text-shadow: 0 0 10px rgba(0, 243, 255, 0.6);
       display: flex; align-items: center; gap: 12px;
     }
     .security-badge {
-      font-size: 9px; background: rgba(0, 243, 255, 0.08); border: 1px solid rgba(0, 243, 255, 0.3);
-      color: #00f3ff; padding: 3px 8px; border-radius: 4px; letter-spacing: 1px;
+      font-size: 9px; background: rgba(0, 243, 255, 0.1); border: 1px solid rgba(0, 243, 255, 0.4);
+      color: #00f3ff; padding: 2px 6px; border-radius: 2px; letter-spacing: 1px;
     }
-
-    /* LIQUID GLASS BOTTOM CENTER MODE TABS */
-    .mode-tabs-container {
-      position: absolute; bottom: 24px; left: 50%; transform: translateX(-50%);
-      z-index: 10; display: flex; gap: 10px;
-      background: rgba(10, 15, 25, 0.55); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-      padding: 8px 14px; border-radius: 30px;
-      border: 1px solid rgba(0, 243, 255, 0.2);
-      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.5);
-    }
+    .mode-tabs { display: flex; gap: 8px; }
     .tab-btn {
-      background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(0, 243, 255, 0.25);
-      color: rgba(0, 243, 255, 0.65); font-family: 'Orbitron', sans-serif; font-size: 10px;
-      padding: 8px 18px; border-radius: 20px; cursor: pointer; transition: all 0.3s ease;
-      letter-spacing: 1px;
+      background: #000000; border: 1px solid rgba(0, 243, 255, 0.3);
+      color: rgba(0, 243, 255, 0.6); font-family: 'Orbitron', sans-serif; font-size: 10px;
+      padding: 5px 14px; cursor: pointer; transition: all 0.2s ease;
     }
     .tab-btn:hover, .tab-btn.active {
       background: rgba(0, 243, 255, 0.2); border-color: #00f3ff; color: #ffffff;
-      box-shadow: 0 0 15px rgba(0, 243, 255, 0.5); text-shadow: 0 0 8px rgba(0, 243, 255, 0.8);
+      box-shadow: 0 0 12px rgba(0, 243, 255, 0.4);
     }
 
-    /* LIQUID GLASS OVERLAY PANEL */
     .ui-overlay {
-      position: absolute; top: 75px; left: 20px; z-index: 10; width: 290px; padding: 18px;
-      background: rgba(10, 15, 25, 0.5); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
-      border: 1px solid rgba(0, 243, 255, 0.2); border-radius: 12px;
-      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45); display: flex; flex-direction: column; gap: 14px;
+      position: absolute; top: 65px; left: 20px; z-index: 10; width: 280px; padding: 16px;
+      background: rgba(0, 0, 0, 0.9); backdrop-filter: blur(10px);
+      border: 1px solid rgba(0, 243, 255, 0.25);
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.8); display: flex; flex-direction: column; gap: 12px;
     }
     .panel-header {
       font-family: 'Orbitron', sans-serif; font-size: 11px; letter-spacing: 1px;
-      color: #ffffff; border-bottom: 1px solid rgba(0, 243, 255, 0.15);
-      padding-bottom: 6px; display: flex; justify-content: space-between;
+      color: #ffffff; border-bottom: 1px solid rgba(0, 243, 255, 0.2);
+      padding-bottom: 5px; display: flex; justify-content: space-between;
     }
     .control-group { display: flex; flex-direction: column; gap: 6px; }
-    label { font-size: 9px; color: rgba(0, 243, 255, 0.75); letter-spacing: 1px; }
+    label { font-size: 9px; color: rgba(0, 243, 255, 0.7); letter-spacing: 1px; }
 
     select, input[type="color"], .stark-btn {
-      width: 100%; height: 34px; background: rgba(0, 0, 0, 0.5);
-      border: 1px solid rgba(0, 243, 255, 0.3); color: #00f3ff; padding: 0 10px;
+      width: 100%; height: 32px; background: #000000;
+      border: 1px solid rgba(0, 243, 255, 0.3); color: #00f3ff; padding: 0 8px;
       font-family: 'Orbitron', sans-serif; font-weight: 700; font-size: 10px;
-      letter-spacing: 1px; outline: none; cursor: pointer; border-radius: 6px; transition: all 0.2s ease;
+      letter-spacing: 1px; outline: none; cursor: pointer; transition: all 0.2s ease;
     }
     select:hover, .stark-btn:hover {
       background: rgba(0, 243, 255, 0.15); border-color: #00f3ff; color: #ffffff;
-      box-shadow: 0 0 12px rgba(0, 243, 255, 0.4);
+      box-shadow: 0 0 10px rgba(0, 243, 255, 0.3);
     }
-    select option { background: #05080f; color: #00f3ff; }
+    select option { background: #000000; color: #00f3ff; }
+
+    .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
 
     .telemetry-box {
-      font-size: 10px; background: rgba(0, 0, 0, 0.35);
-      border: 1px solid rgba(0, 243, 255, 0.15); border-radius: 6px; padding: 10px;
+      font-size: 10px; background: rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(0, 243, 255, 0.15); padding: 8px;
       display: flex; flex-direction: column; gap: 6px;
     }
-    .hand-card { border-left: 2px solid #ffffff; padding-left: 8px; display: flex; flex-direction: column; gap: 3px; }
-    .telemetry-row { display: flex; justify-content: space-between; color: rgba(255, 255, 255, 0.65); }
+    .hand-card { border-left: 2px solid #ffffff; padding-left: 6px; display: flex; flex-direction: column; gap: 2px; }
+    .telemetry-row { display: flex; justify-content: space-between; color: rgba(255, 255, 255, 0.6); }
     .telemetry-val { color: #00f3ff; font-weight: bold; }
 
-    /* LIQUID GLASS CAMERA PREVIEW */
     .camera-preview-container {
-      position: absolute; bottom: 24px; right: 24px; z-index: 10;
-      width: 180px; height: 135px; background: rgba(10, 15, 25, 0.5);
-      backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(0, 243, 255, 0.25); border-radius: 10px;
-      box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.45); display: flex; flex-direction: column; overflow: hidden;
+      position: absolute; bottom: 20px; right: 20px; z-index: 10;
+      width: 180px; height: 135px; background: rgba(0, 0, 0, 0.9);
+      border: 1px solid rgba(0, 243, 255, 0.3);
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.8); display: flex; flex-direction: column;
     }
-    #hand-preview-canvas { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); opacity: 0.9; }
+    #hand-preview-canvas { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); opacity: 0.85; }
     .preview-hud-tag {
-      position: absolute; top: 6px; left: 8px; font-size: 8px; font-weight: bold;
-      letter-spacing: 1px; color: #00f3ff; background: rgba(0, 0, 0, 0.7);
-      padding: 2px 5px; border-radius: 3px; border: 1px solid rgba(0, 243, 255, 0.2);
+      position: absolute; top: 4px; left: 6px; font-size: 8px; font-weight: bold;
+      letter-spacing: 1px; color: #00f3ff; background: rgba(0, 0, 0, 0.8);
+      padding: 1px 4px; border: 1px solid rgba(0, 243, 255, 0.2);
     }
   </style>
 
@@ -117,14 +103,12 @@
   <div class="stark-header">
     <div class="stark-title">
       <span>STARK LAB</span>
-      <span class="security-badge">LIQUID GLASS v10</span>
+      <span class="security-badge">MINIMAL BLACK</span>
     </div>
-  </div>
-
-  <!-- Modalità in basso al centro -->
-  <div class="mode-tabs-container">
-    <button id="tab-builder" class="tab-btn" onclick="switchMode('BUILDER')">SYS 01: QUANTUM CORE</button>
-    <button id="tab-particles" class="tab-btn active" onclick="switchMode('PARTICLES')">SYS 02: PLASMA MATRIX</button>
+    <div class="mode-tabs">
+      <button id="tab-builder" class="tab-btn" onclick="switchMode('BUILDER')">SYS 01: 3D BUILDER</button>
+      <button id="tab-particles" class="tab-btn active" onclick="switchMode('PARTICLES')">SYS 02: PLASMA MATRIX</button>
+    </div>
   </div>
 
   <div class="ui-overlay">
@@ -135,9 +119,16 @@
     
     <div id="controls-builder" style="display: none;">
       <div class="control-group">
-        <label>PLANCIA OLOGRAFICA 3D</label>
-        <button class="stark-btn" onclick="toggleCorePulse()">ATTIVA / DISATTIVA PULSAZIONE</button>
-        <button class="stark-btn" style="margin-top: 6px; border-color: #ff3366; color: #ff3366;" onclick="resetQuantumCore()">RESET ASSETTO</button>
+        <label>SPAWN OGGETTI 3D ESTESI</label>
+        <div class="btn-grid">
+          <button class="stark-btn" onclick="spawnShape('cube')">+ CUBO</button>
+          <button class="stark-btn" onclick="spawnShape('sphere')">+ SFERA</button>
+          <button class="stark-btn" onclick="spawnShape('pyramid')">+ PIRAMIDE</button>
+          <button class="stark-btn" onclick="spawnShape('torus')">+ TORUS</button>
+          <button class="stark-btn" onclick="spawnShape('cylinder')">+ CILINDRO</button>
+          <button class="stark-btn" onclick="spawnShape('icosahedron')">+ ICOSAEDRO</button>
+        </div>
+        <button class="stark-btn" style="margin-top: 6px; border-color: #ff3366; color: #ff3366;" onclick="clearBlocks()">RESET SCENA</button>
       </div>
     </div>
 
@@ -158,7 +149,7 @@
       </div>
       <div class="control-group" style="margin-top: 6px;">
         <label>PLASMA COLOR</label>
-        <input type="color" id="color-picker" value="#00f3ff">
+        <input type="color" id="color-picker" value="#ffffff">
       </div>
     </div>
 
@@ -167,11 +158,11 @@
     <div class="telemetry-box">
       <div class="hand-card">
         <div class="telemetry-row">
-          <span>MANO UNICA:</span>
+          <span>MANO 1:</span>
           <span id="h1-status" class="telemetry-val">CERCA...</span>
         </div>
         <div class="telemetry-row">
-          <span>GESTO PINCH:</span>
+          <span>STATO:</span>
           <span id="h1-grab" class="telemetry-val">LIBERA</span>
         </div>
       </div>
@@ -247,14 +238,17 @@
     let currentMode = 'PARTICLES';
     const PARTICLE_COUNT = 12000;
     let scene, camera, renderer;
-    let quantumCoreGroup;
-    let quantumRings = [];
-    let corePulsing = true;
+    let builderGroup;
+    let blocks = [];
 
-    const controller = {
-      mesh: null, pointLight: null, pos: new THREE.Vector3(), lastPos: new THREE.Vector3(),
-      velocity: new THREE.Vector3(), isPinching: false, statusEl: null, grabEl: null, active: false
-    };
+    // Pallino ultra-piccolo, bianco e brillante come richiesto
+    const controllers = [
+      {
+        id: 0, mesh: null, pointLight: null, color: 0xffffff,
+        grabbedBlock: null, grabOffset: new THREE.Vector3(), pos: new THREE.Vector3(), lastPos: new THREE.Vector3(),
+        velocity: new THREE.Vector3(), isPinching: false, statusEl: null, grabEl: null, active: false
+      }
+    ];
 
     let particleGroup, particleGeometry, particleMaterial;
     let targetPositions = new Float32Array(PARTICLE_COUNT * 3);
@@ -266,7 +260,7 @@
     function initThree() {
       const container = document.getElementById('canvas-container');
       scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x030508);
+      scene.background = new THREE.Color(0x000000); // Sfondo rigorosamente nero minimalista
 
       camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1000);
       camera.position.set(0, 4, 28);
@@ -277,10 +271,9 @@
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       container.appendChild(renderer.domElement);
 
-      // --- NUOVA MODALITÀ 3D: QUANTUM CORE / PLANCIA OLOGRAFICA ---
-      quantumCoreGroup = new THREE.Group();
-      quantumCoreGroup.visible = false;
-      scene.add(quantumCoreGroup);
+      builderGroup = new THREE.Group();
+      builderGroup.visible = false;
+      scene.add(builderGroup);
 
       const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
       scene.add(ambientLight);
@@ -289,38 +282,30 @@
       dirLight.position.set(10, 25, 15);
       scene.add(dirLight);
 
-      // Nucleo centrale energetico
-      const coreGeo = new THREE.IcosahedronGeometry(2.0, 2);
-      const coreMat = new THREE.MeshBasicMaterial({ color: 0x00f3ff, wireframe: true });
-      const coreMesh = new THREE.Mesh(coreGeo, coreMat);
-      coreMesh.name = "coreMesh";
-      quantumCoreGroup.add(coreMesh);
+      const planeGeo = new THREE.PlaneGeometry(100, 100);
+      const planeMat = new THREE.MeshBasicMaterial({ color: 0x050505 });
+      const floor = new THREE.Mesh(planeGeo, planeMat);
+      floor.rotation.x = -Math.PI / 2;
+      floor.position.y = -6;
+      builderGroup.add(floor);
 
-      // Anelli orbitali della plancia olografica
-      for (let i = 0; i < 3; i++) {
-        const ringGeo = new THREE.TorusGeometry(3.5 + i * 1.5, 0.04, 16, 100);
-        const ringMat = new THREE.MeshBasicMaterial({ color: i === 0 ? 0xffffff : 0x00f3ff, transparent: true, opacity: 0.7 });
-        const ring = new THREE.Mesh(ringGeo, ringMat);
-        ring.rotation.x = Math.random() * Math.PI;
-        ring.rotation.y = Math.random() * Math.PI;
-        quantumCoreGroup.add(ring);
-        quantumRings.push(ring);
-      }
+      controllers.forEach((ctrl, idx) => {
+        // Sfera ridotta al minimo raggio (0.15) e bianca accesa
+        const dotGeo = new THREE.SphereGeometry(0.15, 16, 16);
+        const dotMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+        ctrl.mesh = new THREE.Mesh(dotGeo, dotMat);
+        ctrl.mesh.visible = false;
+        builderGroup.add(ctrl.mesh);
 
-      // Sfera di controllo mano unica
-      const dotGeo = new THREE.SphereGeometry(0.15, 16, 16);
-      const dotMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-      controller.mesh = new THREE.Mesh(dotGeo, dotMat);
-      controller.mesh.visible = false;
-      quantumCoreGroup.add(controller.mesh);
+        ctrl.pointLight = new THREE.PointLight(0xffffff, 1.0, 10);
+        builderGroup.add(ctrl.pointLight);
 
-      controller.pointLight = new THREE.PointLight(0xffffff, 1.0, 10);
-      quantumCoreGroup.add(controller.pointLight);
+        ctrl.statusEl = document.getElementById(`h${idx + 1}-status`);
+        ctrl.grabEl = document.getElementById(`h${idx + 1}-grab`);
+      });
 
-      controller.statusEl = document.getElementById('h1-status');
-      controller.grabEl = document.getElementById('h1-grab');
+      spawnShape('cube', 0, 2, 0, 0x00f3ff);
 
-      // --- SISTEMA PARTICELLARE (SYS 02) ---
       particleGroup = new THREE.Group();
       particleGroup.visible = true;
       scene.add(particleGroup);
@@ -337,11 +322,15 @@
         const idx = i * 3;
         let randomColor;
         const rand = Math.random();
-        if (rand < 0.6) randomColor = new THREE.Color('#00f3ff');
-        else if (rand < 0.8) randomColor = new THREE.Color('#2bf2b0');
-        else if (rand < 0.9) randomColor = new THREE.Color('#ffdf73');
-        else randomColor = new THREE.Color('#7a53ff');
-        
+        if (rand < 0.6) {
+          randomColor = new THREE.Color('#ffffff');
+        } else if (rand < 0.8) {
+          randomColor = new THREE.Color('#2bf2b0');
+        } else if (rand < 0.9) {
+          randomColor = new THREE.Color('#ffdf73');
+        } else {
+          randomColor = new THREE.Color('#7a53ff');
+        }
         particleColors[idx] = randomColor.r;
         particleColors[idx + 1] = randomColor.g;
         particleColors[idx + 2] = randomColor.b;
@@ -370,14 +359,51 @@
       window.addEventListener('resize', onWindowResize);
     }
 
-    function toggleCorePulse() {
-      corePulsing = !corePulsing;
-      sounds.playPinch();
+    function spawnShape(type, x, y, z, colorHex) {
+      sounds.init();
+      let geo;
+      const size = 3.0;
+
+      if (type === 'sphere') geo = new THREE.SphereGeometry(size / 1.8, 32, 32);
+      else if (type === 'pyramid') geo = new THREE.ConeGeometry(size / 1.4, size, 4);
+      else if (type === 'torus') geo = new THREE.TorusGeometry(size / 2, size / 6, 16, 32);
+      else if (type === 'cylinder') geo = new THREE.CylinderGeometry(size / 2, size / 2, size, 32);
+      else if (type === 'icosahedron') geo = new THREE.IcosahedronGeometry(size / 1.6);
+      else geo = new THREE.BoxGeometry(size, size, size);
+
+      const mat = new THREE.MeshStandardMaterial({
+        color: colorHex || 0x00f3ff,
+        roughness: 0.3, metalness: 0.2
+      });
+
+      const mesh = new THREE.Mesh(geo, mat);
+      mesh.position.x = x !== undefined ? x : (Math.random() - 0.5) * 8;
+      mesh.position.y = y !== undefined ? y : 6; 
+      mesh.position.z = z !== undefined ? z : (Math.random() - 0.5) * 4;
+
+      mesh.userData = {
+        originalColor: mat.color.getHex(),
+        velocity: new THREE.Vector3(0, 0, 0),
+        isGrabbed: false
+      };
+
+      builderGroup.add(mesh);
+      blocks.push(mesh);
     }
 
-    function resetQuantumCore() {
-      quantumCoreGroup.rotation.set(0, 0, 0);
-      sounds.playPinch();
+    function clearBlocks() {
+      for (let b of blocks) builderGroup.remove(b);
+      blocks = [];
+      controllers.forEach(c => { c.grabbedBlock = null; });
+    }
+
+    function setBlockHighlight(block, mode) {
+      if (!block) return;
+      if (mode === 'grab') {
+        block.material.color.setHex(0xffffff);
+      } else {
+        block.material.color.setHex(block.userData.originalColor);
+      }
     }
 
     function switchMode(mode) {
@@ -386,11 +412,10 @@
       document.getElementById('tab-particles').classList.toggle('active', mode === 'PARTICLES');
       document.getElementById('controls-builder').style.display = mode === 'BUILDER' ? 'block' : 'none';
       document.getElementById('controls-particles').style.display = mode === 'PARTICLES' ? 'block' : 'none';
-      document.getElementById('panel-title-text').innerText = mode === 'BUILDER' ? 'QUANTUM CORE MATRIX' : 'PARTICLE MATRIX';
+      document.getElementById('panel-title-text').innerText = mode === 'BUILDER' ? '3D BUILDER MATRIX' : 'PARTICLE MATRIX';
 
-      quantumCoreGroup.visible = (mode === 'BUILDER');
+      builderGroup.visible = (mode === 'BUILDER');
       particleGroup.visible = (mode === 'PARTICLES');
-      sounds.playPinch();
     }
 
     function generateShape(type) {
@@ -491,7 +516,7 @@
         previewCtx.drawImage(results.image, 0, 0, previewCanvas.width, previewCanvas.height);
 
         const detected = results.multiHandLandmarks && results.multiHandLandmarks.length > 0;
-        const ctrl = controller;
+        const ctrl = controllers[0];
 
         if (detected) {
           ctrl.active = true;
@@ -513,7 +538,7 @@
           const targetPos = camera.position.clone().add(dir.multiplyScalar(distanceToPlane));
 
           ctrl.lastPos.copy(ctrl.pos);
-          ctrl.pos.copy(targetPos);
+          ctrl.pos.copy(targetPos); // Inseguimento immediato e preciso senza ritardi
 
           ctrl.velocity.copy(ctrl.pos).sub(ctrl.lastPos);
           sounds.updateHum(ctrl.velocity.length());
@@ -527,18 +552,36 @@
           if (!wasPinching && ctrl.isPinching) sounds.playPinch();
 
           ctrl.statusEl.innerText = "ATTIVA"; ctrl.statusEl.style.color = "#ffffff";
-          ctrl.grabEl.innerText = ctrl.isPinching ? "CHIUSO (PINCH)" : "APERTO";
-          ctrl.grabEl.style.color = ctrl.isPinching ? "#ff3366" : "#00f3ff";
 
-          // Interazione con la plancia quantica (SYS 01)
           if (currentMode === 'BUILDER') {
-            const h1Center = landmarks[9], wrist = landmarks[0];
-            quantumCoreGroup.rotation.z = -Math.atan2(h1Center.y - wrist.y, h1Center.x - wrist.x) - Math.PI / 2;
-            quantumCoreGroup.rotation.x = (h1Center.y - 0.5) * Math.PI * 1.5;
-            quantumCoreGroup.rotation.y = (h1Center.x - 0.5) * Math.PI * 1.5;
+            if (ctrl.isPinching) {
+              if (ctrl.grabbedBlock) {
+                const blockTarget = ctrl.pos.clone().sub(ctrl.grabOffset);
+                ctrl.grabbedBlock.position.copy(blockTarget); // Presa istantanea dell'oggetto
+                ctrl.grabEl.innerText = "AGGANCIATO"; ctrl.grabEl.style.color = "#ffffff";
+              } else {
+                let closest = null, minDist = 4.0;
+                for (let block of blocks) {
+                  const d = ctrl.pos.distanceTo(block.position);
+                  if (d < minDist) { minDist = d; closest = block; }
+                }
+                if (closest) {
+                  ctrl.grabbedBlock = closest;
+                  closest.userData.isGrabbed = true;
+                  ctrl.grabOffset.copy(ctrl.pos).sub(closest.position);
+                  setBlockHighlight(closest, 'grab');
+                }
+              }
+            } else {
+              if (ctrl.grabbedBlock) {
+                setBlockHighlight(ctrl.grabbedBlock, 'normal');
+                ctrl.grabbedBlock.userData.isGrabbed = false;
+                ctrl.grabbedBlock = null;
+              }
+              ctrl.grabEl.innerText = "LIBERA"; ctrl.grabEl.style.color = "#00f3ff";
+            }
           }
 
-          // Interazione con le particelle (SYS 02)
           if (currentMode === 'PARTICLES') {
             const h1Center = landmarks[9], wrist = landmarks[0];
             targetRotZ = -Math.atan2(h1Center.y - wrist.y, h1Center.x - wrist.x) - Math.PI / 2;
@@ -551,6 +594,11 @@
         } else {
           ctrl.active = false;
           ctrl.mesh.visible = false;
+          if (ctrl.grabbedBlock) {
+            setBlockHighlight(ctrl.grabbedBlock, 'normal');
+            ctrl.grabbedBlock.userData.isGrabbed = false;
+            ctrl.grabbedBlock = null;
+          }
           ctrl.statusEl.innerText = "CERCA..."; ctrl.statusEl.style.color = "#ff3366"; ctrl.grabEl.innerText = "N/A";
         }
 
@@ -567,18 +615,6 @@
     function animate() {
       requestAnimationFrame(animate);
 
-      // Animazione della plancia olografica (Quantum Core)
-      if (quantumCoreGroup.visible) {
-        quantumRings.forEach((ring, idx) => {
-          ring.rotation.z += (idx + 1) * 0.01;
-        });
-        if (corePulsing) {
-          const scale = 1 + Math.sin(Date.now() * 0.005) * 0.15;
-          const coreMesh = quantumCoreGroup.getObjectByName("coreMesh");
-          if (coreMesh) coreMesh.scale.set(scale, scale, scale);
-        }
-      }
-
       if (currentMode === 'PARTICLES') {
         particleGroup.rotation.x += (targetRotX - particleGroup.rotation.x) * 0.15;
         particleGroup.rotation.y += (targetRotY + 0.003 - particleGroup.rotation.y) * 0.15;
@@ -587,7 +623,7 @@
         handExpansionScale += (targetScale - handExpansionScale) * 0.15;
         camera.position.z += (targetCamZ - camera.position.z) * 0.15;
 
-        const isPinching = controller.active && controller.isPinching;
+        const isPinching = controllers[0].active && controllers[0].isPinching;
         const positions = particleGeometry.attributes.position.array;
 
         for (let i = 0; i < PARTICLE_COUNT * 3; i += 3) {

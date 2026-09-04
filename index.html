@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>STARK KINETIC LAB v9.0 // MINIMAL FUTURISTIC</title>
+  <title>STARK KINETIC LAB v10.0 // SINGLE-HAND QUANTUM</title>
   
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -66,7 +66,7 @@
     }
     select option { background: #000000; color: #00f3ff; }
 
-    .btn-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+    .btn-grid { display: grid; grid-template-columns: 1fr; gap: 6px; }
 
     .telemetry-box {
       font-size: 10px; background: rgba(0, 0, 0, 0.5);
@@ -103,10 +103,10 @@
   <div class="stark-header">
     <div class="stark-title">
       <span>STARK LAB</span>
-      <span class="security-badge">MINIMAL BLACK</span>
+      <span class="security-badge">SINGLE-HAND QUANTUM</span>
     </div>
     <div class="mode-tabs">
-      <button id="tab-builder" class="tab-btn" onclick="switchMode('BUILDER')">SYS 01: 3D BUILDER</button>
+      <button id="tab-builder" class="tab-btn" onclick="switchMode('BUILDER')">SYS 01: QUANTUM CORE</button>
       <button id="tab-particles" class="tab-btn active" onclick="switchMode('PARTICLES')">SYS 02: PLASMA MATRIX</button>
     </div>
   </div>
@@ -119,16 +119,11 @@
     
     <div id="controls-builder" style="display: none;">
       <div class="control-group">
-        <label>SPAWN OGGETTI 3D ESTESI</label>
+        <label>PLANCIA OLOGRAFICA 3D</label>
         <div class="btn-grid">
-          <button class="stark-btn" onclick="spawnShape('cube')">+ CUBO</button>
-          <button class="stark-btn" onclick="spawnShape('sphere')">+ SFERA</button>
-          <button class="stark-btn" onclick="spawnShape('pyramid')">+ PIRAMIDE</button>
-          <button class="stark-btn" onclick="spawnShape('torus')">+ TORUS</button>
-          <button class="stark-btn" onclick="spawnShape('cylinder')">+ CILINDRO</button>
-          <button class="stark-btn" onclick="spawnShape('icosahedron')">+ ICOSAEDRO</button>
+          <button class="stark-btn" onclick="toggleCorePulse()">ATTIVA / DISATTIVA PULSAZIONE</button>
         </div>
-        <button class="stark-btn" style="margin-top: 6px; border-color: #ff3366; color: #ff3366;" onclick="clearBlocks()">RESET SCENA</button>
+        <button class="stark-btn" style="margin-top: 6px; border-color: #ff3366; color: #ff3366;" onclick="resetQuantumCore()">RESET ASSETTO</button>
       </div>
     </div>
 
@@ -158,11 +153,11 @@
     <div class="telemetry-box">
       <div class="hand-card">
         <div class="telemetry-row">
-          <span>MANO 1:</span>
+          <span>MANO UNICA:</span>
           <span id="h1-status" class="telemetry-val">CERCA...</span>
         </div>
         <div class="telemetry-row">
-          <span>STATO:</span>
+          <span>GESTO PINCH:</span>
           <span id="h1-grab" class="telemetry-val">LIBERA</span>
         </div>
       </div>
@@ -238,17 +233,14 @@
     let currentMode = 'PARTICLES';
     const PARTICLE_COUNT = 12000;
     let scene, camera, renderer;
-    let builderGroup;
-    let blocks = [];
+    let quantumCoreGroup;
+    let quantumRings = [];
+    let corePulsing = true;
 
-    // Pallino ultra-piccolo, bianco e brillante come richiesto
-    const controllers = [
-      {
-        id: 0, mesh: null, pointLight: null, color: 0xffffff,
-        grabbedBlock: null, grabOffset: new THREE.Vector3(), pos: new THREE.Vector3(), lastPos: new THREE.Vector3(),
-        velocity: new THREE.Vector3(), isPinching: false, statusEl: null, grabEl: null, active: false
-      }
-    ];
+    const controller = {
+      mesh: null, pointLight: null, pos: new THREE.Vector3(), lastPos: new THREE.Vector3(),
+      velocity: new THREE.Vector3(), isPinching: false, statusEl: null, grabEl: null, active: false
+    };
 
     let particleGroup, particleGeometry, particleMaterial;
     let targetPositions = new Float32Array(PARTICLE_COUNT * 3);
@@ -260,7 +252,7 @@
     function initThree() {
       const container = document.getElementById('canvas-container');
       scene = new THREE.Scene();
-      scene.background = new THREE.Color(0x000000); // Sfondo rigorosamente nero minimalista
+      scene.background = new THREE.Color(0x000000);
 
       camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1000);
       camera.position.set(0, 4, 28);
@@ -271,9 +263,10 @@
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       container.appendChild(renderer.domElement);
 
-      builderGroup = new THREE.Group();
-      builderGroup.visible = false;
-      scene.add(builderGroup);
+      // --- NUOVA MODALITÀ 3D: QUANTUM CORE / PLANCIA OLOGRAFICA ---
+      quantumCoreGroup = new THREE.Group();
+      quantumCoreGroup.visible = false;
+      scene.add(quantumCoreGroup);
 
       const ambientLight = new THREE.AmbientLight(0xffffff, 0.9);
       scene.add(ambientLight);
@@ -282,30 +275,38 @@
       dirLight.position.set(10, 25, 15);
       scene.add(dirLight);
 
-      const planeGeo = new THREE.PlaneGeometry(100, 100);
-      const planeMat = new THREE.MeshBasicMaterial({ color: 0x050505 });
-      const floor = new THREE.Mesh(planeGeo, planeMat);
-      floor.rotation.x = -Math.PI / 2;
-      floor.position.y = -6;
-      builderGroup.add(floor);
+      // Nucleo centrale energetico
+      const coreGeo = new THREE.IcosahedronGeometry(2.0, 2);
+      const coreMat = new THREE.MeshBasicMaterial({ color: 0x00f3ff, wireframe: true });
+      const coreMesh = new THREE.Mesh(coreGeo, coreMat);
+      coreMesh.name = "coreMesh";
+      quantumCoreGroup.add(coreMesh);
 
-      controllers.forEach((ctrl, idx) => {
-        // Sfera ridotta al minimo raggio (0.15) e bianca accesa
-        const dotGeo = new THREE.SphereGeometry(0.15, 16, 16);
-        const dotMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-        ctrl.mesh = new THREE.Mesh(dotGeo, dotMat);
-        ctrl.mesh.visible = false;
-        builderGroup.add(ctrl.mesh);
+      // Anelli orbitali della plancia olografica
+      for (let i = 0; i < 3; i++) {
+        const ringGeo = new THREE.TorusGeometry(3.5 + i * 1.5, 0.04, 16, 100);
+        const ringMat = new THREE.MeshBasicMaterial({ color: i === 0 ? 0xffffff : 0x00f3ff, transparent: true, opacity: 0.7 });
+        const ring = new THREE.Mesh(ringGeo, ringMat);
+        ring.rotation.x = Math.random() * Math.PI;
+        ring.rotation.y = Math.random() * Math.PI;
+        quantumCoreGroup.add(ring);
+        quantumRings.push(ring);
+      }
 
-        ctrl.pointLight = new THREE.PointLight(0xffffff, 1.0, 10);
-        builderGroup.add(ctrl.pointLight);
+      // Sfera di controllo mano unica
+      const dotGeo = new THREE.SphereGeometry(0.15, 16, 16);
+      const dotMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+      controller.mesh = new THREE.Mesh(dotGeo, dotMat);
+      controller.mesh.visible = false;
+      quantumCoreGroup.add(controller.mesh);
 
-        ctrl.statusEl = document.getElementById(`h${idx + 1}-status`);
-        ctrl.grabEl = document.getElementById(`h${idx + 1}-grab`);
-      });
+      controller.pointLight = new THREE.PointLight(0xffffff, 1.0, 10);
+      quantumCoreGroup.add(controller.pointLight);
 
-      spawnShape('cube', 0, 2, 0, 0x00f3ff);
+      controller.statusEl = document.getElementById('h1-status');
+      controller.grabEl = document.getElementById('h1-grab');
 
+      // --- SISTEMA PARTICELLARE (SYS 02) ---
       particleGroup = new THREE.Group();
       particleGroup.visible = true;
       scene.add(particleGroup);
@@ -322,15 +323,11 @@
         const idx = i * 3;
         let randomColor;
         const rand = Math.random();
-        if (rand < 0.6) {
-          randomColor = new THREE.Color('#ffffff');
-        } else if (rand < 0.8) {
-          randomColor = new THREE.Color('#2bf2b0');
-        } else if (rand < 0.9) {
-          randomColor = new THREE.Color('#ffdf73');
-        } else {
-          randomColor = new THREE.Color('#7a53ff');
-        }
+        if (rand < 0.6) randomColor = new THREE.Color('#ffffff');
+        else if (rand < 0.8) randomColor = new THREE.Color('#2bf2b0');
+        else if (rand < 0.9) randomColor = new THREE.Color('#ffdf73');
+        else randomColor = new THREE.Color('#7a53ff');
+        
         particleColors[idx] = randomColor.r;
         particleColors[idx + 1] = randomColor.g;
         particleColors[idx + 2] = randomColor.b;
@@ -359,51 +356,14 @@
       window.addEventListener('resize', onWindowResize);
     }
 
-    function spawnShape(type, x, y, z, colorHex) {
-      sounds.init();
-      let geo;
-      const size = 3.0;
-
-      if (type === 'sphere') geo = new THREE.SphereGeometry(size / 1.8, 32, 32);
-      else if (type === 'pyramid') geo = new THREE.ConeGeometry(size / 1.4, size, 4);
-      else if (type === 'torus') geo = new THREE.TorusGeometry(size / 2, size / 6, 16, 32);
-      else if (type === 'cylinder') geo = new THREE.CylinderGeometry(size / 2, size / 2, size, 32);
-      else if (type === 'icosahedron') geo = new THREE.IcosahedronGeometry(size / 1.6);
-      else geo = new THREE.BoxGeometry(size, size, size);
-
-      const mat = new THREE.MeshStandardMaterial({
-        color: colorHex || 0x00f3ff,
-        roughness: 0.3, metalness: 0.2
-      });
-
-      const mesh = new THREE.Mesh(geo, mat);
-      mesh.position.x = x !== undefined ? x : (Math.random() - 0.5) * 8;
-      mesh.position.y = y !== undefined ? y : 6; 
-      mesh.position.z = z !== undefined ? z : (Math.random() - 0.5) * 4;
-
-      mesh.userData = {
-        originalColor: mat.color.getHex(),
-        velocity: new THREE.Vector3(0, 0, 0),
-        isGrabbed: false
-      };
-
-      builderGroup.add(mesh);
-      blocks.push(mesh);
+    function toggleCorePulse() {
+      corePulsing = !corePulsing;
+      sounds.playPinch();
     }
 
-    function clearBlocks() {
-      for (let b of blocks) builderGroup.remove(b);
-      blocks = [];
-      controllers.forEach(c => { c.grabbedBlock = null; });
-    }
-
-    function setBlockHighlight(block, mode) {
-      if (!block) return;
-      if (mode === 'grab') {
-        block.material.color.setHex(0xffffff);
-      } else {
-        block.material.color.setHex(block.userData.originalColor);
-      }
+    function resetQuantumCore() {
+      quantumCoreGroup.rotation.set(0, 0, 0);
+      sounds.playPinch();
     }
 
     function switchMode(mode) {
@@ -412,9 +372,9 @@
       document.getElementById('tab-particles').classList.toggle('active', mode === 'PARTICLES');
       document.getElementById('controls-builder').style.display = mode === 'BUILDER' ? 'block' : 'none';
       document.getElementById('controls-particles').style.display = mode === 'PARTICLES' ? 'block' : 'none';
-      document.getElementById('panel-title-text').innerText = mode === 'BUILDER' ? '3D BUILDER MATRIX' : 'PARTICLE MATRIX';
+      document.getElementById('panel-title-text').innerText = mode === 'BUILDER' ? 'QUANTUM CORE MATRIX' : 'PARTICLE MATRIX';
 
-      builderGroup.visible = (mode === 'BUILDER');
+      quantumCoreGroup.visible = (mode === 'BUILDER');
       particleGroup.visible = (mode === 'PARTICLES');
     }
 
@@ -516,7 +476,7 @@
         previewCtx.drawImage(results.image, 0, 0, previewCanvas.width, previewCanvas.height);
 
         const detected = results.multiHandLandmarks && results.multiHandLandmarks.length > 0;
-        const ctrl = controllers[0];
+        const ctrl = controller;
 
         if (detected) {
           ctrl.active = true;
@@ -538,7 +498,7 @@
           const targetPos = camera.position.clone().add(dir.multiplyScalar(distanceToPlane));
 
           ctrl.lastPos.copy(ctrl.pos);
-          ctrl.pos.copy(targetPos); // Inseguimento immediato e preciso senza ritardi
+          ctrl.pos.copy(targetPos);
 
           ctrl.velocity.copy(ctrl.pos).sub(ctrl.lastPos);
           sounds.updateHum(ctrl.velocity.length());
@@ -552,34 +512,15 @@
           if (!wasPinching && ctrl.isPinching) sounds.playPinch();
 
           ctrl.statusEl.innerText = "ATTIVA"; ctrl.statusEl.style.color = "#ffffff";
+          ctrl.grabEl.innerText = ctrl.isPinching ? "CHIUSO (PINCH)" : "APERTO";
+          ctrl.grabEl.style.color = ctrl.isPinching ? "#ff3366" : "#00f3ff";
 
+          // Interazione con la plancia quantica
           if (currentMode === 'BUILDER') {
-            if (ctrl.isPinching) {
-              if (ctrl.grabbedBlock) {
-                const blockTarget = ctrl.pos.clone().sub(ctrl.grabOffset);
-                ctrl.grabbedBlock.position.copy(blockTarget); // Presa istantanea dell'oggetto
-                ctrl.grabEl.innerText = "AGGANCIATO"; ctrl.grabEl.style.color = "#ffffff";
-              } else {
-                let closest = null, minDist = 4.0;
-                for (let block of blocks) {
-                  const d = ctrl.pos.distanceTo(block.position);
-                  if (d < minDist) { minDist = d; closest = block; }
-                }
-                if (closest) {
-                  ctrl.grabbedBlock = closest;
-                  closest.userData.isGrabbed = true;
-                  ctrl.grabOffset.copy(ctrl.pos).sub(closest.position);
-                  setBlockHighlight(closest, 'grab');
-                }
-              }
-            } else {
-              if (ctrl.grabbedBlock) {
-                setBlockHighlight(ctrl.grabbedBlock, 'normal');
-                ctrl.grabbedBlock.userData.isGrabbed = false;
-                ctrl.grabbedBlock = null;
-              }
-              ctrl.grabEl.innerText = "LIBERA"; ctrl.grabEl.style.color = "#00f3ff";
-            }
+            const h1Center = landmarks[9], wrist = landmarks[0];
+            quantumCoreGroup.rotation.z = -Math.atan2(h1Center.y - wrist.y, h1Center.x - wrist.x) - Math.PI / 2;
+            quantumCoreGroup.rotation.x = (h1Center.y - 0.5) * Math.PI * 1.5;
+            quantumCoreGroup.rotation.y = (h1Center.x - 0.5) * Math.PI * 1.5;
           }
 
           if (currentMode === 'PARTICLES') {
@@ -594,11 +535,6 @@
         } else {
           ctrl.active = false;
           ctrl.mesh.visible = false;
-          if (ctrl.grabbedBlock) {
-            setBlockHighlight(ctrl.grabbedBlock, 'normal');
-            ctrl.grabbedBlock.userData.isGrabbed = false;
-            ctrl.grabbedBlock = null;
-          }
           ctrl.statusEl.innerText = "CERCA..."; ctrl.statusEl.style.color = "#ff3366"; ctrl.grabEl.innerText = "N/A";
         }
 
@@ -615,6 +551,18 @@
     function animate() {
       requestAnimationFrame(animate);
 
+      // Animazione della plancia olografica (Quantum Core)
+      if (quantumCoreGroup.visible) {
+        quantumRings.forEach((ring, idx) => {
+          ring.rotation.z += (idx + 1) * 0.01;
+        });
+        if (corePulsing) {
+          const scale = 1 + Math.sin(Date.now() * 0.005) * 0.15;
+          const coreMesh = quantumCoreGroup.getObjectByName("coreMesh");
+          if (coreMesh) coreMesh.scale.set(scale, scale, scale);
+        }
+      }
+
       if (currentMode === 'PARTICLES') {
         particleGroup.rotation.x += (targetRotX - particleGroup.rotation.x) * 0.15;
         particleGroup.rotation.y += (targetRotY + 0.003 - particleGroup.rotation.y) * 0.15;
@@ -623,7 +571,7 @@
         handExpansionScale += (targetScale - handExpansionScale) * 0.15;
         camera.position.z += (targetCamZ - camera.position.z) * 0.15;
 
-        const isPinching = controllers[0].active && controllers[0].isPinching;
+        const isPinching = controller.active && controller.isPinching;
         const positions = particleGeometry.attributes.position.array;
 
         for (let i = 0; i < PARTICLE_COUNT * 3; i += 3) {
